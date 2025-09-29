@@ -1,25 +1,37 @@
 package com.example.taskmanager.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(unique = true, nullable = false)
     private String username;
     private String password;
     private String email;
 
-    public User(){}
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    public User(int id, String username, String email, String password) {
-        this.id = id;
+    public User() {
+    }
+
+    public User(String username, String email, String password, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public int getId() {
@@ -36,6 +48,11 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     public String getPassword() {

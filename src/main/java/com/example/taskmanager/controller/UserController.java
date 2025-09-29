@@ -1,33 +1,29 @@
 package com.example.taskmanager.controller;
 
 import com.example.taskmanager.model.User;
-import com.example.taskmanager.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.taskmanager.service.UserService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    @Autowired
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/users")
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    @GetMapping
+    public List<User> getUsers() {
+        return userService.getAllUsers();
     }
 
-    @PostMapping("/users")
-    public User addUser(@RequestBody User user){
-        return userRepository.save(user);
+    @PostMapping
+    public User addUser(@RequestBody User user) {
+        return userService.addUser(user);
     }
 }
