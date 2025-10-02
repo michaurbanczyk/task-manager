@@ -3,7 +3,6 @@ package com.example.taskmanager.controller;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.TaskService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,17 +18,17 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasksForUser(@AuthenticationPrincipal User user) {
+    public List<Task> getTasksForUser(User user) {
         return taskService.getTasksForUser(user);
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task, @AuthenticationPrincipal User user) {
+    public Task createTask(@RequestBody Task task, User user) {
         return taskService.addTask(task, user);
     }
 
     @DeleteMapping("/{taskId}")
-    public void deleteTask(@PathVariable int taskId, @AuthenticationPrincipal User user) {
+    public void deleteTask(@PathVariable int taskId, User user) {
         taskService.deleteTask(taskId, user);
     }
 }
