@@ -17,11 +17,11 @@ public class LoggingAspect {
 
     @Before("execution(* com.example.taskmanager.controller.*.*(..))")
     public void logBefore(JoinPoint joinPoint) {
-        logger.info("Before: {}", joinPoint.getSignature().getName());
+        logger.info("Running endpoint: {}", joinPoint.getSignature().getName());
     }
 
     @AfterReturning(pointcut = "execution(* com.example.taskmanager.controller.*.*(..))", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
-        logger.info("After: {} returned with value: {}", joinPoint.getSignature().getName(), result);
+        logger.info("After: {} results: {}", joinPoint.getSignature().getName(), result);
     }
 }
