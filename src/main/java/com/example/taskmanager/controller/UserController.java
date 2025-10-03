@@ -1,7 +1,9 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.dto.user.CreateUserRequest;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +37,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
+    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
+        User createdUser = userService.createUser(request);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 

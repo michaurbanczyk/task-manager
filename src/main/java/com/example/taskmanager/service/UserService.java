@@ -1,5 +1,7 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.dto.user.CreateUserRequest;
+import com.example.taskmanager.model.Role;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +39,23 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    public User createUser(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User createUser(@RequestBody CreateUserRequest request) {
+        String username = request.username();
+
+        Optional<User> possibleUser = userRepository.findByUsername(username);
+        if (possibleUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+        }
+
+        Role defaultRole = Role.USER;
+
+        User user = User.builder()
+                .username(request.username())
+                .password(passwordEncoder.encode(request.password()))
+                .email(request.email())
+                .role(defaultRole)
+                .build();
+
         return userRepository.save(user);
     }
 
