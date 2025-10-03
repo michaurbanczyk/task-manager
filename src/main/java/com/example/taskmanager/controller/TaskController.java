@@ -1,8 +1,10 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.dto.task.CreateTaskRequest;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +20,13 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasksForUser(User user) {
-        return taskService.getTasksForUser(user);
+    public List<Task> getAllTasks() {
+        return taskService.getAllTasks();
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task, User user) {
-        return taskService.addTask(task, user);
+    public Task createTask(@Valid @RequestBody CreateTaskRequest request) {
+        return taskService.createTask(request);
     }
 
     @DeleteMapping("/{taskId}")
