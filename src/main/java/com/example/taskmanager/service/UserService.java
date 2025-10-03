@@ -1,9 +1,12 @@
 package com.example.taskmanager.service;
 
 import com.example.taskmanager.dto.user.CreateUserRequest;
+import com.example.taskmanager.dto.user.UpdateUserRequest;
 import com.example.taskmanager.model.Role;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,13 +42,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    public User createUser(@RequestBody CreateUserRequest request) {
+    public User createUser(@RequestBody @Valid CreateUserRequest request) {
         String username = request.username();
-
-        Optional<User> possibleUser = userRepository.findByUsername(username);
-        if (possibleUser.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
-        }
+        throwExceptionIfUserExists(username);
 
         Role defaultRole = Role.USER;
 
@@ -69,5 +68,28 @@ public class UserService implements UserDetailsService {
         Optional<User> userList = userRepository.findByUsername(username);
 
         return userList.orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", username)));
+    }
+
+    @Transactional
+    public User updateUser(UUID id, UpdateUserRequest request) {
+        User user = getUserById(id);
+        if (request.username() != null) {
+            String updatedUsername = request.username();
+            throwExceptionIfUserExists(updatedUsername);
+            user.setUsername(updatedUsername);
+        }
+        if (request.email() != null) {
+            String updatedEmail = request.email();
+            user.setEmail(updatedEmail);
+        }
+
+        return userRepository.save(user);
+    }
+
+    private void throwExceptionIfUserExists(String username) {
+        Optional<User> possibleUser = userRepository.findByUsername(username);
+        if (possibleUser.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+        }
     }
 }
