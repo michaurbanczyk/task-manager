@@ -1,13 +1,16 @@
 package com.example.taskmanager.service;
 
 import com.example.taskmanager.dto.request.CreateTaskRequest;
+import com.example.taskmanager.dto.request.UpdateTaskRequest;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.TaskRepository;
 import com.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,12 +27,19 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<Task> getTasksForUser(User user) {
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
+
+    public List<Task> getTasksByUserId(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return taskRepository.findByUser(user);
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public Task getTaskById(UUID id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
     }
 
     public Task createTask(CreateTaskRequest request) {
@@ -43,12 +53,26 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public void deleteTask(long taskId, User user) throws IllegalArgumentException {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
+    public Task updateTask(UUID taskId, UpdateTaskRequest request) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
-        if (!task.getUser().getUsername().equals(user.getUsername())) {
-            throw new IllegalArgumentException("You can only delete your own tasks");
+        if (request.title() != null) {
+            task.setTitle(request.title());
         }
+        if (request.description() != null) {
+            task.setDescription(request.description());
+        }
+        if (request.dueDate() != null) {
+            task.setDueDate(request.dueDate());
+        }
+
+        return taskRepository.save(task);
+    }
+
+    public void deleteTask(UUID taskId) throws IllegalArgumentException {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
         taskRepository.delete(task);
     }

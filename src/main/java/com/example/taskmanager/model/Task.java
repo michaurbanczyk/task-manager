@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,6 +32,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @CreatedDate
@@ -39,4 +42,8 @@ public class Task {
     @LastModifiedDate
     @Column(nullable = false)
     private Instant lastModifiedDate;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Instant dueDate = Instant.now().plus(7, java.time.temporal.ChronoUnit.DAYS);
 }
