@@ -1,7 +1,7 @@
 package com.example.taskmanager.controller;
 
-import com.example.taskmanager.dto.user.CreateUserRequest;
-import com.example.taskmanager.dto.user.UpdateUserRequest;
+import com.example.taskmanager.dto.request.CreateUserRequest;
+import com.example.taskmanager.dto.request.UpdateUserRequest;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.UserService;
 import jakarta.validation.Valid;
