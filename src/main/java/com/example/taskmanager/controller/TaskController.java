@@ -5,6 +5,9 @@ import com.example.taskmanager.dto.request.UpdateTaskRequest;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +26,16 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks(@RequestParam(required = false) UUID userId) {
+    public ResponseEntity<Page<Task>> getAllTasks(
+            @RequestParam(required = false) UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
         if (userId != null) {
-            return ResponseEntity.ok(taskService.getTasksByUserId(userId));
+            return ResponseEntity.ok(taskService.getTasksByUserId(userId, pageable));
         }
-        return ResponseEntity.ok(taskService.getAllTasks());
+        return ResponseEntity.ok(taskService.getAllTasks(pageable));
     }
 
     @GetMapping("/{id}")

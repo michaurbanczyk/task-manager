@@ -7,6 +7,8 @@ import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.TaskRepository;
 import com.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,14 +29,14 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public Page<Task> getAllTasks(Pageable pageable) {
+        return taskRepository.findAll(pageable);
     }
 
-    public List<Task> getTasksByUserId(UUID userId) {
+    public Page<Task> getTasksByUserId(UUID userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return taskRepository.findByUser(user);
+        return taskRepository.findByUser(user, pageable);
     }
 
     public Task getTaskById(UUID id) {
