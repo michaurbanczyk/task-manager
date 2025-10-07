@@ -6,7 +6,9 @@ import com.example.taskmanager.dto.request.RegisterRequest;
 import com.example.taskmanager.dto.response.AuthenticationResponse;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.example.taskmanager.model.Role.USER;
@@ -63,6 +66,31 @@ public class AuthenticationService {
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public AuthenticationResponse refreshToken(
+            HttpServletRequest request
+    ) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String username;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        refreshToken = authHeader.substring(7);
+        username = jwtService.extractUsername(refreshToken);
+        if (username != null) {
+            var user = userRepository.findByUsername(username)
+                    .orElseThrow();
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+                return AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+            }
+        }
+        return null;
     }
 
 }
